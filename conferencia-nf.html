@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conferência de NF — BRK</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    padding: 16px 24px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 14px;
+  }
+
+  header h1 { font-size: 1.12rem; font-weight: 700; letter-spacing: 0.3px; }
+  header p  { font-size: 0.76rem; opacity: 0.6; margin-top: 2px; }
+
+  /* Company tabs */
+  .company-tabs {
+    display: flex;
+    gap: 4px;
+    padding-top: 4px;
+  }
+
+  .co-tab {
+    padding: 9px 20px 8px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.55);
+    transition: all 0.15s;
+    user-select: none;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  .co-tab:hover { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.85); }
+
+  .co-tab.active {
+    background: #f0f2f5;
+    color: #1a1a2e;
+  }
+
+  .co-tab.tab-matriz.active  { border-top: 3px solid #4a6cf7; }
+  .co-tab.tab-filial.active  { border-top: 3px solid #e07a1a; }
+  .co-tab.tab-com.active     { border-top: 3px solid #2e7d32; }
+
+  /* Info bar below header */
+  .info-bar {
+    background: #fff;
+    border-bottom: 1px solid #e8ecf5;
+    padding: 9px 24px;
+    font-size: 0.78rem;
+    color: #666;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .info-bar strong { color: #1a1a2e; }
+
+  .regime-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+
+  .badge-lp  { background: #e8eeff; color: #4a6cf7; }
+  .badge-sn  { background: #e8f5e9; color: #2e7d32; }
+  .badge-re  { background: #fff3e8; color: #e07a1a; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 18px 16px 40px; }
+
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .search-bar input {
+    flex: 1;
+    padding: 11px 16px;
+    border: 2px solid #dde3f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+
+  .search-bar input:focus { border-color: #4a6cf7; }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-size: 0.76rem;
+    color: #666;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .filter-group { display: flex; gap: 5px; align-items: center; }
+
+  .chip {
+    padding: 5px 13px;
+    border-radius: 18px;
+    font-size: 0.81rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .chip-tipo { background: #eef1fb; color: #4a6cf7; border-color: #d0d9f8; }
+  .chip-tipo.active, .chip-tipo:hover { background: #4a6cf7; color: #fff; border-color: #4a6cf7; }
+
+  .chip-dir { background: #fff3e8; color: #e07a1a; border-color: #f5d5b0; }
+  .chip-dir.active, .chip-dir:hover { background: #e07a1a; color: #fff; border-color: #e07a1a; }
+
+  .chip-clear { background: #fdecea; color: #d32f2f; border-color: #f8c8c5; margin-left: auto; }
+  .chip-clear:hover { background: #d32f2f; color: #fff; border-color: #d32f2f; }
+
+  .stats { font-size: 0.8rem; color: #888; margin-bottom: 10px; }
+  .stats strong { color: #4a6cf7; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+
+  thead tr { background: #1a1a2e; color: #fff; }
+
+  thead th {
+    padding: 10px 11px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: left;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  thead th.center { text-align: center; }
+
+  .section-header td {
+    padding: 7px 12px;
+    font-size: 0.73rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff;
+  }
+
+  .sec-interna       { background: #2e7d32; }
+  .sec-interestadual { background: #1565c0; }
+  .sec-exterior      { background: #6a1b9a; }
+
+  tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.12s;
+  }
+
+  tbody tr:hover { background: #f5f8ff; }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 8px 11px;
+    font-size: 0.81rem;
+    vertical-align: middle;
+  }
+
+  td.desc { max-width: 320px; line-height: 1.4; }
+  td.center { text-align: center; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 0.71rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .badge-entrada { background: #e8f5e9; color: #2e7d32; }
+  .badge-saida   { background: #fff3e8; color: #e07a1a; }
+
+  .cfop {
+    font-family: monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    background: #f0f2f5;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .cst {
+    font-family: monospace;
+    font-size: 0.83rem;
+    color: #555;
+    background: #f5f5f5;
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+
+  .aliq { font-size: 0.79rem; color: #444; font-weight: 600; }
+
+  .no-results {
+    text-align: center;
+    padding: 48px 16px;
+    color: #aaa;
+    font-size: 0.93rem;
+  }
+
+  mark { background: #fff176; border-radius: 2px; padding: 0 1px; }
+
+  @media (max-width: 768px) {
+    table { font-size: 0.73rem; }
+    td, th { padding: 6px 7px; }
+    td.desc { max-width: 180px; }
+    .co-tab { padding: 8px 12px; font-size: 0.76rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="8" fill="#4a6cf7" opacity="0.9"/>
+      <rect x="9" y="10" width="18" height="2.5" rx="1.25" fill="white"/>
+      <rect x="9" y="16" width="12" height="2.5" rx="1.25" fill="white"/>
+      <rect x="9" y="22" width="15" height="2.5" rx="1.25" fill="white"/>
+      <circle cx="27" cy="27" r="5" fill="#ffd700"/>
+      <path d="M25 27l1.5 1.5 3-3" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>Conferência de Notas Fiscais</h1>
+      <p>Consulta rápida de CFOP, CST e alíquotas por empresa</p>
+    </div>
+  </div>
+  <div class="company-tabs">
+    <button class="co-tab tab-matriz active" onclick="selectCompany('matriz',this)">BRK IND Matriz</button>
+    <button class="co-tab tab-filial" onclick="selectCompany('filial',this)">BRK IND Filial</button>
+    <button class="co-tab tab-com" onclick="selectCompany('com',this)">BRK COM / BRK AGRO</button>
+  </div>
+</header>
+
+<div class="info-bar" id="infoBar"></div>
+
+<div class="container">
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="Buscar por CFOP ou descrição da operação…" oninput="render()" autocomplete="off" spellcheck="false">
+  </div>
+
+  <div class="filters">
+    <span class="filter-label">Tipo:</span>
+    <div class="filter-group" id="filtroTipo">
+      <span class="chip chip-tipo active" data-tipo="todos" onclick="toggleTipo(this)">Todos</span>
+      <span class="chip chip-tipo" data-tipo="interna" onclick="toggleTipo(this)">Interna</span>
+      <span class="chip chip-tipo" data-tipo="interestadual" onclick="toggleTipo(this)">Interestadual</span>
+      <span class="chip chip-tipo" data-tipo="exterior" onclick="toggleTipo(this)">Exterior</span>
+    </div>
+    <span class="filter-label" style="margin-left:8px">Direção:</span>
+    <div class="filter-group" id="filtroDir">
+      <span class="chip chip-dir active" data-dir="todos" onclick="toggleDir(this)">Todos</span>
+      <span class="chip chip-dir" data-dir="entrada" onclick="toggleDir(this)">Entrada</span>
+      <span class="chip chip-dir" data-dir="saida" onclick="toggleDir(this)">Saída</span>
+    </div>
+    <span class="chip chip-clear" onclick="clearAll()">✕ Limpar</span>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div id="tableWrap"></div>
+</div>
+
+<script>
+// ─── DATASETS ──────────────────────────────────────────────────────────────
+
+const COMPANIES = {
+  matriz: {
+    label: "BRK IND Matriz",
+    cnpj: "17.113.656/0001-13",
+    regime: "Lucro Presumido",
+    regimeEspecial: "TD Confecções",
+    simples: false,
+    data: [
+      // ── INTERNA ENTRADA ──
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF compra para industrialização",cfop:"1101",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"00",aliq_ipi:"Conforme nota"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF compra para revenda",cfop:"1102",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF compra p/ comerc orig encomen receb futuro",cfop:"1117",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Industrialização efetu por outra empresa",cfop:"1124",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF devolução mercadoria remetida em transferência da filial",cfop:"1209",cst_icms:"00",aliq_icms:"0,18",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF devolução de venda industrialização – contribuinte",cfop:"1201",cst_icms:"00",aliq_icms:"0,12",cst_pis:"50",aliq_pis:"0,0065",cst_cof:"50",aliq_cof:"0,03",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF devolução de venda industrialização – não contribuinte",cfop:"1201",cst_icms:"00",aliq_icms:"0,18",cst_pis:"50",aliq_pis:"0,0065",cst_cof:"50",aliq_cof:"0,03",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF devolução de venda comercialização",cfop:"1202",cst_icms:"00",aliq_icms:"0,18",cst_pis:"50",aliq_pis:"0,0065",cst_cof:"50",aliq_cof:"0,03",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada Cte aquisição transporte p/ estabel industrial",cfop:"1352",cst_icms:"40",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF compra para industrialização com ST",cfop:"1401",cst_icms:"60",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Imobilizado com ST",cfop:"1406",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Material Uso e Consumo com ST",cfop:"1407",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Imobilizado Tributado",cfop:"1551",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Material Uso e Consumo Tributado",cfop:"1556",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF compra de combustível para consumo final",cfop:"1653",cst_icms:"60/61",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Retorno mercadoria remetida industrialização por encomenda",cfop:"1902",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF retorno de remessa para venda fora do estabelecimento – feira",cfop:"1904",cst_icms:"00",aliq_icms:"0,18",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF retorno simbólico mercadoria remetida depósito fechado",cfop:"1907",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada bem em Comodato",cfop:"1908",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF entrada de bonificação, doação e brinde",cfop:"1910",cst_icms:"00",aliq_icms:"0,18",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF entrada amostra grátis",cfop:"1911",cst_icms:"40",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF entrada mercadoria recebido para demonstração",cfop:"1912",cst_icms:"40",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF retorno mercadoria remetido para exposição",cfop:"1914",cst_icms:"40",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF retorno mercadoria remetido para conserto",cfop:"1916",cst_icms:"50",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Lançamento efetuado a titulo de simples faturamento",cfop:"1922",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Aquisição transporte iniciado unidade diversa do prestador",cfop:"1932",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF entrada Simples Remessa",cfop:"1949",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      // ── INTERNA SAÍDA ──
+      {tipo:"interna",dir:"saida",desc:"Saída venda produção do estabelecimento para contribuinte",cfop:"5101",cst_icms:"00",aliq_icms:"0,12",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda produção do estabelecimento para não contribuinte",cfop:"5101",cst_icms:"00",aliq_icms:"0,18",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda comercialização para não contribuinte",cfop:"5102",cst_icms:"00",aliq_icms:"0,18",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda produção do estabelecimento que não deva por ele transitar (saída do depósito) – contribuinte",cfop:"5105",cst_icms:"00",aliq_icms:"0,12",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda produção do estabelecimento que não deva por ele transitar (saída do depósito) – não contribuinte",cfop:"5105",cst_icms:"00",aliq_icms:"0,18",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda mercadoria adquirida que não deva por ele transitar (saída do depósito) – não contribuinte",cfop:"5106",cst_icms:"00",aliq_icms:"0,18",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda produção do estabelecimento orig de encomenda para entrega futura – contribuinte",cfop:"5116",cst_icms:"00",aliq_icms:"0,12",cst_pis:"08",aliq_pis:"0",cst_cof:"08",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda produção do estabelecimento orig de encomenda para entrega futura – não contribuinte",cfop:"5116",cst_icms:"00",aliq_icms:"0,18",cst_pis:"08",aliq_pis:"0",cst_cof:"08",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída transferência de produção do estabelecimento para filial",cfop:"5151",cst_icms:"00",aliq_icms:"0,18",cst_pis:"08",aliq_pis:"0",cst_cof:"08",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra p/ industrialização",cfop:"5201",cst_icms:"00",aliq_icms:"0,18",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra para comercialização",cfop:"5202",cst_icms:"00",aliq_icms:"0,18",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução compra ativo imobilizado com ST",cfop:"5412",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra ativo imobilizado tributado",cfop:"5553",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra Uso e Consumo",cfop:"5556",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída remessa para industrialização por encomenda",cfop:"5901",cst_icms:"50",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída remessa para venda fora do estabelecimento",cfop:"5904",cst_icms:"00",aliq_icms:"0,18",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída remessa bonificação, doação ou brinde",cfop:"5910",cst_icms:"00",aliq_icms:"0,18",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída remessa mercadoria p/ conserto",cfop:"5915",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída lançamento efetuado a titulo simples faturamento venda entrega futura",cfop:"5922",cst_icms:"41",aliq_icms:"0",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída Simples Remessa",cfop:"5949",cst_icms:"41",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      // ── INTERESTADUAL ENTRADA ──
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra para industrialização",cfop:"2101",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"00",aliq_ipi:"Conforme nota"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra para revenda",cfop:"2102",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra p/ comerc orig encomen receb futuro",cfop:"2117",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra p/ industrialização em que a mercadoria foi remetida pelo fornecedor",cfop:"2122",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Industrialização efetu por outra empresa",cfop:"2124",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Industrialização efetuada por outra empresa sem transit estab adquirente",cfop:"2125",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF devolução de venda industrialização – contribuinte",cfop:"2201",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"50",aliq_pis:"0,0065",cst_cof:"50",aliq_cof:"0,03",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF devolução de venda industrialização – não contribuinte",cfop:"2201",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"50",aliq_pis:"0,0065",cst_cof:"50",aliq_cof:"0,03",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF devolução de venda comercialização",cfop:"2202",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"50",aliq_pis:"0,0065",cst_cof:"50",aliq_cof:"0,03",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada Cte aquisição transporte p/ estabel industrial",cfop:"2352",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra para industrialização com ST",cfop:"2401",cst_icms:"60",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Imobilizado com ST",cfop:"2406",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Material Uso e Consumo com ST",cfop:"2407",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Imobilizado Tributado",cfop:"2551",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Material Uso e Consumo Tributado",cfop:"2556",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Retorno mercadoria remetida industrialização por encomenda",cfop:"2902",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF entrada mercadoria p/ industrialização não aplicada no processo",cfop:"2903",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF retorno de remessa para venda fora do estabelecimento – feira",cfop:"2904",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF retorno simbólico mercadoria remetida depósito fechado",cfop:"2907",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Entrada bem em Comodato",cfop:"2908",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF entrada de bonificação, doação e brinde",cfop:"2910",cst_icms:"00",aliq_icms:"0,18",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF entrada amostra grátis",cfop:"2911",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF entrada mercadoria recebido para demonstração",cfop:"2912",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF retorno mercadoria remetido para exposição",cfop:"2914",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF retorno mercadoria remetido para conserto",cfop:"2916",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Lançamento efetuado a titulo de simples faturamento",cfop:"2922",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF retorno mercadoria remetida industrialização por conta e ord terceiros",cfop:"2925",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Aquisição transporte iniciado unidade diversa do prestador",cfop:"2932",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF entrada Simples Remessa",cfop:"2949",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      // ── INTERESTADUAL SAÍDA ──
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda produção do estabelecimento para contribuinte",cfop:"6101",cst_icms:"00",aliq_icms:"7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda produção do estabelecimento para não contribuinte",cfop:"6101",cst_icms:"00",aliq_icms:"7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda mercadoria comercialização para contribuinte",cfop:"6102",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda produção do estabelecimento que não deva por ele transitar (saída do depósito) – contribuinte",cfop:"6105",cst_icms:"00",aliq_icms:"7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda produção do estabelecimento que não deva por ele transitar (saída do depósito) – não contribuinte",cfop:"6105",cst_icms:"00",aliq_icms:"7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda mercadoria adquirida que não deva por ele transitar (saída do depósito)",cfop:"6106",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda produção do estabelecimento para não contribuinte",cfop:"6107",cst_icms:"00",aliq_icms:"7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda mercadoria comercialização para não contribuinte",cfop:"6108",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda produção do estabelecimento orig de encomenda para entrega futura – contribuinte",cfop:"6116",cst_icms:"00",aliq_icms:"7 / 12%",cst_pis:"08",aliq_pis:"0",cst_cof:"08",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda produção estabelecimento p/ industrialização que não deva por ele transitar",cfop:"6122",cst_icms:"00",aliq_icms:"7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra p/ industrialização",cfop:"6201",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra para comercialização",cfop:"6202",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução compra ativo imobilizado com ST",cfop:"6412",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra ativo imobilizado tributado",cfop:"6553",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra Uso e Consumo",cfop:"6556",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída remessa para depósito fechado",cfop:"6905",cst_icms:"41",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída remessa bonificação, doação ou brinde",cfop:"6910",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída remessa mercadoria p/ conserto",cfop:"6915",cst_icms:"41",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída lançamento efetuado a titulo simples faturamento venda entrega futura",cfop:"6922",cst_icms:"41",aliq_icms:"0",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída Simples Remessa",cfop:"6949",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      // ── EXTERIOR ──
+      {tipo:"exterior",dir:"entrada",desc:"Entrada NF devolução de venda industrialização",cfop:"3201",cst_icms:"41",aliq_icms:"0",cst_pis:"08",aliq_pis:"0",cst_cof:"08",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"exterior",dir:"saida",desc:"Saída venda de produção do estabelecimento",cfop:"7101",cst_icms:"41",aliq_icms:"0",cst_pis:"08",aliq_pis:"0",cst_cof:"08",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+    ]
+  },
+
+  filial: {
+    label: "BRK IND Filial",
+    cnpj: "17.113.656/0002-02",
+    regime: "Lucro Presumido",
+    regimeEspecial: "TD E-Commerce",
+    simples: false,
+    data: [
+      // ── INTERNA ENTRADA ──
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF compra para revenda",cfop:"1102",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF transferência para comercialização",cfop:"1152",cst_icms:"00",aliq_icms:"0,18",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF devolução de venda comercialização",cfop:"1202",cst_icms:"00",aliq_icms:"0,18",cst_pis:"99",aliq_pis:"0,0065",cst_cof:"50",aliq_cof:"0,0065",cst_ipi:"49",aliq_ipi:"0,03"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada Cte aquisição transporte p/ estabel comercial",cfop:"1353",cst_icms:"40",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF compra para comercialização com ST",cfop:"1403",cst_icms:"60",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Material Uso e Consumo com ST",cfop:"1407",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Material Uso e Consumo Tributado",cfop:"1556",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF bem em Comodato",cfop:"1908",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF entrada de bonificação, doação e brinde",cfop:"1910",cst_icms:"00",aliq_icms:"0,18",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF entrada Simples Remessa",cfop:"1949",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      // ── INTERNA SAÍDA ──
+      {tipo:"interna",dir:"saida",desc:"Saída venda comercialização para não contribuinte",cfop:"5102",cst_icms:"00",aliq_icms:"0,18",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda mercadoria adquirida que não deva por ele transitar (saída do depósito)",cfop:"5106",cst_icms:"00",aliq_icms:"0,18",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra para comercialização",cfop:"5202",cst_icms:"00",aliq_icms:"0,18",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução mercadoria remetida transferência para matriz",cfop:"5209",cst_icms:"00",aliq_icms:"0,18",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra Uso e Consumo",cfop:"5556",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída remessa para venda fora do estabelecimento",cfop:"5904",cst_icms:"00",aliq_icms:"0,18",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída remessa bonificação, doação ou brinde",cfop:"5910",cst_icms:"00",aliq_icms:"0,18",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída Simples Remessa",cfop:"5949",cst_icms:"41",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      // ── INTERESTADUAL ENTRADA ──
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra para revenda",cfop:"2102",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra p/ comerc pelo adquirente entrega futura venda a ordem",cfop:"2118",cst_icms:"00",aliq_icms:"Conforme NF",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF devolução de venda comercialização",cfop:"2202",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"50",aliq_pis:"0,0065",cst_cof:"50",aliq_cof:"0,03",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada Cte aquisição transporte p/ estabel comercial",cfop:"2353",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra para industrialização com ST",cfop:"2401",cst_icms:"60",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Imobilizado com ST",cfop:"2406",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Material Uso e Consumo com ST",cfop:"2407",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Imobilizado Tributado",cfop:"2551",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Material Uso e Consumo Tributado",cfop:"2556",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Retorno mercadoria remetida para deposito",cfop:"2906",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF retorno simbólico mercadoria remetida depósito fechado",cfop:"2907",cst_icms:"41",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF entrada de bonificação, doação e brinde",cfop:"2910",cst_icms:"00",aliq_icms:"0,18",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF entrada amostra grátis",cfop:"2911",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF retorno mercadoria remetido para conserto",cfop:"2916",cst_icms:"90",aliq_icms:"0",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Aquisição transporte iniciado unidade diversa do prestador",cfop:"2932",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF entrada Simples Remessa",cfop:"2949",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      // ── INTERESTADUAL SAÍDA ──
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda mercadoria comercialização para contribuinte",cfop:"6102",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda mercadoria adquirida que não deva por ele transitar (saída do depósito)",cfop:"6106",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda mercadoria comercialização para não contribuinte",cfop:"6108",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"01",aliq_pis:"0,0065",cst_cof:"01",aliq_cof:"0,03",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra para comercialização",cfop:"6202",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra Uso e Consumo",cfop:"6556",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída remessa para depósito fechado",cfop:"6905",cst_icms:"41",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída remessa bonificação, doação ou brinde",cfop:"6910",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída remessa mercadoria p/ conserto",cfop:"6915",cst_icms:"90",aliq_icms:"0",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída Simples Remessa",cfop:"6949",cst_icms:"00",aliq_icms:"4 / 7 / 12%",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      // ── EXTERIOR ──
+      {tipo:"exterior",dir:"entrada",desc:"Entrada NF devolução de venda industrialização",cfop:"3201",cst_icms:"41",aliq_icms:"0",cst_pis:"08",aliq_pis:"0",cst_cof:"08",aliq_cof:"0",cst_ipi:"51",aliq_ipi:"0"},
+      {tipo:"exterior",dir:"saida",desc:"Saída venda de produção do estabelecimento",cfop:"7101",cst_icms:"41",aliq_icms:"0",cst_pis:"08",aliq_pis:"0",cst_cof:"08",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+    ]
+  },
+
+  com: {
+    label: "BRK COM / BRK AGRO",
+    cnpj: "25.342.805/0001-44 (BRK COM) · 53.733.097/0001-08 (BRK AGRO)",
+    regime: "Simples Nacional",
+    regimeEspecial: null,
+    simples: true,
+    data: [
+      // ── INTERNA ENTRADA ──
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF compra para revenda",cfop:"1102",csosn:"102",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF devolução de venda",cfop:"1202",csosn:"102",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada Cte transporte",cfop:"1353",csosn:"400",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Material Uso e Consumo Tributado",cfop:"1556",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Material Uso e Consumo com ST",cfop:"1407",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Imobilizado Tributado",cfop:"1551",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Imobilizado com ST",cfop:"1406",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF Simples Remessa",cfop:"1949",csosn:"400",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      {tipo:"interna",dir:"entrada",desc:"Entrada NF bem em Comodato",cfop:"1908",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"53",aliq_ipi:"0"},
+      // ── INTERNA SAÍDA ──
+      {tipo:"interna",dir:"saida",desc:"Saída venda para não contribuinte",cfop:"5102",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"03",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda para contribuinte",cfop:"5102",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"03",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra",cfop:"5202",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"03",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída remessa bonificação, doação ou brinde",cfop:"5910",csosn:"400",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"03",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída venda remetida pelo Depósito",cfop:"5106",csosn:"900",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"03",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída Simples Remessa",cfop:"5949",csosn:"400",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"03",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra Ativo Imobilizado",cfop:"5553",csosn:"900",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"03",aliq_ipi:"0"},
+      {tipo:"interna",dir:"saida",desc:"Saída devolução de compra Uso e Consumo",cfop:"5556",csosn:"900",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"03",aliq_ipi:"0"},
+      // ── INTERESTADUAL ENTRADA ──
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF compra para revenda",cfop:"2102",csosn:"102",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF devolução de venda",cfop:"2202",csosn:"102",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada Cte transporte",cfop:"2353",csosn:"400",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Material Uso e Consumo Tributado",cfop:"2556",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Material Uso e Consumo com ST",cfop:"2407",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Imobilizado Tributado",cfop:"2551",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Imobilizado com ST",cfop:"2406",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF Simples Remessa",cfop:"2949",csosn:"400",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"entrada",desc:"Entrada NF bem em Comodato",cfop:"2908",csosn:"900",cst_pis:"99",aliq_pis:"0",cst_cof:"99",aliq_cof:"0",cst_ipi:"49",aliq_ipi:"0"},
+      // ── INTERESTADUAL SAÍDA ──
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda para não contribuinte",cfop:"6108",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"99",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda para contribuinte",cfop:"6102",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"99",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída venda remetida pelo Depósito",cfop:"6106",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"99",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra",cfop:"6202",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"99",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída remessa bonificação, doação ou brinde",cfop:"6910",csosn:"400",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"99",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída Simples Remessa",cfop:"6949",csosn:"400",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"99",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra Ativo Imobilizado",cfop:"6553",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"99",aliq_ipi:"0"},
+      {tipo:"interestadual",dir:"saida",desc:"Saída devolução de compra Uso e Consumo",cfop:"6556",csosn:"102",cst_pis:"49",aliq_pis:"0",cst_cof:"49",aliq_cof:"0",cst_ipi:"99",aliq_ipi:"0"},
+    ]
+  }
+};
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let currentCo  = 'matriz';
+let filtroTipo = 'todos';
+let filtroDir  = 'todos';
+
+// ─── ACTIONS ───────────────────────────────────────────────────────────────
+function selectCompany(co, el) {
+  currentCo = co;
+  document.querySelectorAll('.co-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  clearFiltersOnly();
+  updateInfoBar();
+  render();
+}
+
+function toggleTipo(el) {
+  document.querySelectorAll('#filtroTipo .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filtroTipo = el.dataset.tipo;
+  render();
+}
+
+function toggleDir(el) {
+  document.querySelectorAll('#filtroDir .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filtroDir = el.dataset.dir;
+  render();
+}
+
+function clearFiltersOnly() {
+  filtroTipo = 'todos'; filtroDir = 'todos';
+  document.getElementById('search').value = '';
+  document.querySelectorAll('.chip-tipo').forEach((c,i) => c.classList.toggle('active', i===0));
+  document.querySelectorAll('.chip-dir').forEach((c,i)  => c.classList.toggle('active', i===0));
+}
+
+function clearAll() {
+  clearFiltersOnly();
+  render();
+}
+
+function hl(text, q) {
+  if (!q) return text;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return String(text).replace(re, '<mark>$1</mark>');
+}
+
+// ─── INFO BAR ──────────────────────────────────────────────────────────────
+function updateInfoBar() {
+  const co = COMPANIES[currentCo];
+  const regTag = co.simples
+    ? `<span class="regime-badge badge-sn">Simples Nacional</span>`
+    : `<span class="regime-badge badge-lp">Lucro Presumido</span>`;
+  const reTag = co.regimeEspecial
+    ? `<span class="regime-badge badge-re">${co.regimeEspecial}</span>`
+    : '';
+  document.getElementById('infoBar').innerHTML =
+    `<span><strong>CNPJ:</strong> ${co.cnpj}</span>
+     <span><strong>Regime:</strong> ${regTag}${reTag}</span>
+     <span><strong>Total de operações:</strong> ${co.data.length}</span>`;
+}
+
+// ─── RENDER TABLE ──────────────────────────────────────────────────────────
+function render() {
+  const co = COMPANIES[currentCo];
+  const isSimples = co.simples;
+  const q = document.getElementById('search').value.trim().toLowerCase();
+
+  let rows = co.data.filter(r => {
+    if (filtroTipo !== 'todos' && r.tipo !== filtroTipo) return false;
+    if (filtroDir  !== 'todos' && r.dir  !== filtroDir)  return false;
+    if (q) return r.cfop.includes(q) || r.desc.toLowerCase().includes(q);
+    return true;
+  });
+
+  document.getElementById('stats').innerHTML =
+    `Exibindo <strong>${rows.length}</strong> de ${co.data.length} operações`;
+
+  if (rows.length === 0) {
+    document.getElementById('tableWrap').innerHTML =
+      `<div class="no-results"><p>Nenhuma operação encontrada para os filtros selecionados.</p></div>`;
+    return;
+  }
+
+  // Table header
+  const icmsHeader = isSimples
+    ? `<th class="center">CSOSN ICMS</th>`
+    : `<th class="center">CST ICMS</th><th class="center">Alíq. ICMS</th>`;
+
+  let html = `<table><thead><tr>
+    <th style="min-width:75px">CFOP</th>
+    <th>Descrição da Operação</th>
+    <th class="center" style="min-width:52px">Tipo</th>
+    ${icmsHeader}
+    <th class="center">CST PIS</th>
+    <th class="center">Alíq. PIS</th>
+    <th class="center">CST COFINS</th>
+    <th class="center">Alíq. COFINS</th>
+    <th class="center">CST IPI</th>
+    <th class="center">Alíq. IPI</th>
+  </tr></thead><tbody>`;
+
+  const tipoOrder = ["interna","interestadual","exterior"];
+  const tipoLabel = {interna:"Operações Internas",interestadual:"Operações Interestaduais",exterior:"Operações Exterior"};
+  const tipoClass = {interna:"sec-interna",interestadual:"sec-interestadual",exterior:"sec-exterior"};
+
+  for (const tipo of tipoOrder) {
+    const grupo = rows.filter(r => r.tipo === tipo);
+    if (!grupo.length) continue;
+    const cols = isSimples ? 9 : 10;
+    html += `<tr class="section-header"><td colspan="${cols}" class="${tipoClass[tipo]}">${tipoLabel[tipo]}</td></tr>`;
+    for (const r of grupo) {
+      const icmsCols = isSimples
+        ? `<td class="center"><span class="cst">${hl(r.csosn,q)}</span></td>`
+        : `<td class="center"><span class="cst">${hl(r.cst_icms,q)}</span></td><td class="center aliq">${r.aliq_icms}</td>`;
+      html += `<tr>
+        <td><span class="cfop">${hl(r.cfop,q)}</span></td>
+        <td class="desc">${hl(r.desc,q)}</td>
+        <td class="center"><span class="badge badge-${r.dir}">${r.dir==='entrada'?'Entrada':'Saída'}</span></td>
+        ${icmsCols}
+        <td class="center"><span class="cst">${r.cst_pis}</span></td>
+        <td class="center aliq">${r.aliq_pis}</td>
+        <td class="center"><span class="cst">${r.cst_cof}</span></td>
+        <td class="center aliq">${r.aliq_cof}</td>
+        <td class="center"><span class="cst">${r.cst_ipi}</span></td>
+        <td class="center aliq">${r.aliq_ipi}</td>
+      </tr>`;
+    }
+  }
+
+  html += '</tbody></table>';
+  document.getElementById('tableWrap').innerHTML = html;
+}
+
+// Init
+updateInfoBar();
+render();
+document.getElementById('search').focus();
+</script>
+</body>
+</html>
